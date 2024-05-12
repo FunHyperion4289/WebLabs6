@@ -1,4 +1,3 @@
-
 <?php
 require_once("funcs/functions.php");
 
@@ -34,6 +33,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             http_response_code(500); // Internal Server Error
             echo "Error saving comment";
         }
+    } else {
+        // Handle potential errors here, e.g., missing data
+        http_response_code(400); // Bad Request
+        echo "Invalid request";
     }
 }
 ?>
