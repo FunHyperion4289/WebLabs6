@@ -1,6 +1,5 @@
 <?php
     require_once("funcs/functions.php");
-    // require_once("db/init.php");
     $page_title = 'Home';
     $curPage = "home";
     $articles = getArticles();

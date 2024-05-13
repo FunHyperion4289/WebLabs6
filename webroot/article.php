@@ -25,6 +25,68 @@
     $curPage = "articlePage";
     $comments = getArticleComments($articleId);
 
+// Detect AJAX request
+    $isAjax = isset($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) === 'xmlhttprequest';
+
+    $errors = [];
+    if ('new-comment' === ($_POST['action'] ?? null)) {
+        $author = trim((string)($_POST['name'] ?? null));
+        if ('' === $author) {
+            $errors['name'] = 'This field is can not be empty';
+        } elseif (mb_strlen($author) > 50) {
+            $errors['name'] = 'Length can not be more than 50 characters';
+        }
+
+        $rate = (int)($_POST['rate'] ?? null);
+        if ($rate < 1 || $rate > 5) {
+            $errors['rate'] = 'Invalid rate';
+        }
+
+        $content = trim((string)($_POST['content'] ?? null));
+        if ('' === $content) {
+            $errors['content'] = 'This field is can not be empty';
+        } elseif (mb_strlen($content) > 200) {
+            $errors['content'] = 'Length can not be more than 200 characters';
+        }
+
+        if (0 === count($errors)) {
+            $db = getDbConnection();
+            $createdAt = date('Y-m-d H:i:s');
+            $query = "INSERT INTO `comments` 
+                (`id`, `article_id`, `author`, `rate`, `content`, `created`) VALUES 
+                (NULL, ?, ?, ?, ?, ?)";
+            $stmt = $db->prepare($query);
+            $result = $stmt->execute([$articleId, $author, $rate, $content, $createdAt]);
+
+            if ($result) {
+                if ($isAjax) {
+                    // Return the HTML for the new comment
+                    echo '
+                        
+                            ' . htmlspecialchars($author) . '
+                            ' . $createdAt . '
+                            ' . str_repeat('✨', $rate) . '
+                            ' . nl2br(htmlspecialchars($content), false) . '
+                        
+                    ';
+                } else {
+                    header("Location: " . $_SERVER["PHP_SELF"] . "?id={$articleId}");
+                    exit;
+                }
+            } else {
+                // Handle database error
+                $errors['db'] = "Error saving comment";
+            }
+        }
+
+        if ($isAjax) {
+            // If AJAX request and there are validation errors, return them as JSON
+            if (count($errors) > 0) {
+                echo json_encode($errors);
+            }
+        }
+    }
+
 ?>
 
 <!DOCTYPE html>

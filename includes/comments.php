@@ -1,39 +1,3 @@
-<?php /** * @var array $errors * @var array $comments * @var integer $articleId */?>
-
-<?php
-if (!isset($errors)) {
-    $errors = [];
-}
-
-// Check if the form was submitted
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['action'] === 'new-comment') {
-    // Process the form data (same as in submit-comment.php)
-    $articleId = (int)($_POST['article_id'] ?? 0);
-    $author = trim((string)($_POST['name'] ?? null));
-    $rate = (int)($_POST['rate'] ?? null);
-    $content = trim((string)($_POST['content'] ?? null));
-    $errors = [];
-
-    if (0 === count($errors)) {
-        $db = getDbConnection();
-        $createdAt = date('Y-m-d H:i:s');
-        $query = "INSERT INTO `comments`             
-            (`id`, `article_id`, `author`, `rate`, `content`, `created`) VALUES             
-            (NULL, ?, ?, ?, ?, ?)";
-        $stmt = $db->prepare($query);
-        $result = $stmt->execute([$articleId, $author, $rate, $content, $createdAt]);
-
-        if ($result) {
-            // Instead of echoing the HTML here, redirect back to the article page
-            header("Location: article.php?id=$articleId");
-            exit(); // Stop further execution
-        } else {
-            $errors['submit'] = "Error saving comment";
-        }
-    }
-}
-?>
-
 <section class="article-comments">
     <h2>Comments (<?=count($comments) ?>)</h2>
 
@@ -93,7 +57,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
 </section>
 
 <script>
-    $(document).ready(function() {
+    jQuery(function() {
         $("#new-comment-form").submit(function(event) {
             event.preventDefault();
             var formData = $(this).serialize();

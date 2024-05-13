@@ -19,24 +19,27 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $result = $stmt->execute([$articleId, $author, $rate, $content, $createdAt]);
 
         if ($result) {
-            // Return the HTML for the new comment
-            echo '    
-                    <div class="comment">
+            if (!empty($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) == 'xmlhttprequest') {
+                // AJAX request
+                echo '
+                    
+                      <div class="comment">
                     <b class="comment-author" title="Comment author">' . htmlspecialchars($author) . '</b>
                     <time class="comment-date" title="Comment time" datetime="' . $createdAt . '">' . $createdAt . '</time>
                     <span class="comment-rate" title="Rating">' . str_repeat('✨', $rate) . '</span>
                     <p class="comment-content">' . nl2br(htmlspecialchars($content), false) . '</p>
                     </div>
+                    
                 ';
+            } else {
+                // Traditional form submission
+                header("Location: " . $_SERVER["PHP_SELF"] . "?id={$articleId}");
+                exit;
+            }
         } else {
-            // Send an error response
-            http_response_code(500); // Internal Server Error
-            echo "Error saving comment";
+            // Handle database error
+            $errors['db'] = "Error saving comment";
         }
-    } else {
-        // Handle potential errors here, e.g., missing data
-        http_response_code(400); // Bad Request
-        echo "Invalid request";
     }
 }
 ?>
