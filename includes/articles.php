@@ -8,13 +8,13 @@
 ?>
 
 <?php
-    $url = "article.php?id={$article['id']}";
-    if ($averageRate === null) {
-        $averageRate = 0;
-    }
-    else {
-        $averageRate = number_format($averageRate, 1);
-    }
+$url = "article.php?id={$article['id']}";
+if ($averageRate === null) {
+    $averageRate = 0;
+}
+else {
+    $averageRate = number_format($averageRate, 1);
+}
 ?>
 
 <article class="blog-card">

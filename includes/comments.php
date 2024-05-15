@@ -1,8 +1,15 @@
+<?php
+/**
+ * @var array $errors
+ * @var array $comments
+ */
+?>
+
 <section class="article-comments">
     <h2>Comments (<?=count($comments) ?>)</h2>
 
     <!-- Form now submits to the same page (comments.php) -->
-    <form id="new-comment-form" method="post" class="form-container">
+    <form id="new-comment-form" method="POST" action="/webroot/submit-comment.php" class="form-container">
         <input type="hidden" name="action" value="new-comment">
         <input type="hidden" name="article_id" value="<?= $articleId ?>">
 
@@ -42,6 +49,7 @@
         <?php } ?>
 
         <button type="submit" class='btn'>Leave comment</button>
+        <div class="input-error" id="commentError"></div>
     </form>
 
     <div class="comments">
@@ -58,22 +66,27 @@
 
 <script>
     jQuery(function() {
-        $("#new-comment-form").submit(function(event) {
+        let $commentsList = $('.comments');
+        let $form = $("#new-comment-form");
+
+        $form.submit(function(event) {
             event.preventDefault();
-            var formData = $(this).serialize();
+
             $.ajax({
-                url: 'submit-comment.php',
-                type: 'POST',
-                data: formData,
+                type: $form.attr('method'),
+                url: $form.attr('action'),
+                data: $form.serialize(),
                 success: function(response) {
-                    $(".comments").append(response);
-                    $("#new-comment-form")[0].reset();
+                    $commentsList.append($(response));
+                    $form[0].reset();
                 },
                 error: function(xhr, status, error) {
-                    console.error("AJAX request failed: ", status, error);
-                    alert("Error submitting comment. Please try again later.");
+                    console.error(xhr.responseText);
                 }
             });
         });
     });
 </script>
+
+
+

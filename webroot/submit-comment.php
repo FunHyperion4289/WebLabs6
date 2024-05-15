@@ -9,7 +9,25 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     $errors = [];
 
-    if (0 === count($errors)) {
+    // Validate fields
+    if (empty($author)) {
+        $errors['name'] = 'Name field is required.';
+    } elseif (mb_strlen($author) > 50) {
+        $errors['name'] = 'Name length can not be more than 50 characters.';
+    }
+
+    if ($rate < 1 || $rate > 5) {
+        $errors['rate'] = 'Invalid rate.';
+    }
+
+    if (empty($content)) {
+        $errors['content'] = 'Content field is required.';
+    } elseif (mb_strlen($content) > 200) {
+        $errors['content'] = 'Content length can not be more than 200 characters.';
+    }
+
+    // If no errors, proceed with insertion
+    if (count($errors) === 0) {
         $db = getDbConnection();
         $createdAt = date('Y-m-d H:i:s');
         $query = "INSERT INTO `comments` 
@@ -20,7 +38,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         if ($result) {
             if (!empty($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) == 'xmlhttprequest') {
-                // AJAX request
+                // AJAX request - Return new comment HTML
                 echo '
                     
                       <div class="comment">
@@ -35,10 +53,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 // Traditional form submission
                 header("Location: " . $_SERVER["PHP_SELF"] . "?id={$articleId}");
                 exit;
+
             }
         } else {
             // Handle database error
-            $errors['db'] = "Error saving comment";
+            $errors['db'] = "Error saving comment.";
+        }
+    } else {
+        // If there are validation errors, return them as JSON for AJAX
+
+        if (!empty($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) == 'xmlhttprequest') {
+            echo json_encode(['error' => 'The message was not sent, some of the fields are empty.']);
         }
     }
 }

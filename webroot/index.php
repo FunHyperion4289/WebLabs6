@@ -1,8 +1,8 @@
 <?php
-    require_once("funcs/functions.php");
-    $page_title = 'Home';
-    $curPage = "home";
-    $articles = getArticles();
+require_once("funcs/functions.php");
+$page_title = 'Home';
+$curPage = "home";
+$articles = getArticles();
 ?>
 
 <!DOCTYPE html>
@@ -13,18 +13,18 @@
 </head>
 
 <body>
-    <?php require("../includes/header.php") ?>
+<?php require("../includes/header.php") ?>
 
-    <main class="container">
-         
-        <?php foreach ($articles as $article) { ?>
-            <?php $numberOfComments = $article['numbersComments']; ?>
-            <?php $averageRate = $article['avgRate']; ?>
-            <?php require '../includes/articles.php'; ?>
-        <?php } ?>
-        
-    </main>
+<main class="container">
 
-    <?php include("../includes/footer.php"); ?>
+    <?php foreach ($articles as $article) { ?>
+        <?php $numberOfComments = $article['numbersComments']; ?>
+        <?php $averageRate = $article['avgRate']; ?>
+        <?php require '../includes/articles.php'; ?>
+    <?php } ?>
+
+</main>
+
+<?php include("../includes/footer.php"); ?>
 </body>
 </html>
