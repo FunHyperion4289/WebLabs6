@@ -1,5 +1,5 @@
 <?php
-    require_once("funcs/functions.php");
+    require_once("../includes/functions.php");
 ?>
 
 <!DOCTYPE html>

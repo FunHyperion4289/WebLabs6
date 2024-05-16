@@ -1,6 +1,6 @@
 
 <?php
-require_once("funcs/functions.php");
+require_once("../includes/functions.php");
 
 $articleId = $_GET['id'] ?? null;
 
@@ -58,35 +58,16 @@ if ('new-comment' === ($_POST['action'] ?? null)) {
                 (NULL, ?, ?, ?, ?, ?)";
         $stmt = $db->prepare($query);
         $result = $stmt->execute([$articleId, $author, $rate, $content, $createdAt]);
-
-        if ($result) {
-            if ($isAjax) {
-                // Return the HTML for the new comment
-                echo '
-                        
-                            <div class="comment">
-                            <b class="comment-author" title="Comment author">' . htmlspecialchars($author) . '</b>
-                            <time class="comment-date" title="Comment time" datetime="' . $createdAt . '">' . $createdAt . '</time>
-                            <span class="comment-rate" title="Rating">' . str_repeat('✨', $rate) . '</span>
-                            <p class="comment-content">' . nl2br(htmlspecialchars($content), false) . '</p>
-                            </div>
-                        
-                    ';
-            } else {
-                header("Location: " . $_SERVER["PHP_SELF"] . "?id={$articleId}");
-                exit;
-            }
-        } else {
-            // Handle database error
-            $errors['db'] = "Error saving comment";
-        }
     }
 
     if ($isAjax) {
         // If AJAX request and there are validation errors, return them as JSON
-        if (count($errors) > 0) {
-            echo json_encode($errors);
-        }
+        include("../includes/comments.php");
+        exit;
+    }
+    else if (0 === count($errors)) {
+        header("Location: " . $_SERVER["PHP_SELF"] . "?id={$articleId}");
+        exit;
     }
 }
 

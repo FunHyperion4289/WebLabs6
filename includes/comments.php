@@ -2,6 +2,7 @@
 /**
  * @var array $errors
  * @var array $comments
+ * @var integer $articleId
  */
 ?>
 
@@ -9,9 +10,8 @@
     <h2>Comments (<?=count($comments) ?>)</h2>
 
     <!-- Form now submits to the same page (comments.php) -->
-    <form id="new-comment-form" method="POST" action="/webroot/submit-comment.php" class="form-container">
+    <form id="new-comment-form" method="POST" action="" class="form-container">
         <input type="hidden" name="action" value="new-comment">
-        <input type="hidden" name="article_id" value="<?= $articleId ?>">
 
         <div class="form-input-group">
             <input class="form-input-field" value="<?= htmlspecialchars($_POST['name']??'');?>" type="text" name="name" id="nameField" max="50" placeholder="Your name" require>
@@ -66,7 +66,7 @@
 
 <script>
     jQuery(function() {
-        let $commentsList = $('.comments');
+        let $commentsList = $('.article-comments');
         let $form = $("#new-comment-form");
 
         $form.submit(function(event) {
@@ -77,7 +77,7 @@
                 url: $form.attr('action'),
                 data: $form.serialize(),
                 success: function(response) {
-                    $commentsList.append($(response));
+                    $commentsList.replaceWith(response);
                     $form[0].reset();
                 },
                 error: function(xhr, status, error) {
